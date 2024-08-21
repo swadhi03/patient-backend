@@ -89,6 +89,32 @@ app.post("/addpatient",(req,res)=>{
     res.json({"status":"success"})
 })
 
+app.post("/PatientSignIn",(req,res)=>{
+    input = req.body
+    let result = PatientModel.find({patientid:input.patientid}).then(
+       (response)=>{
+        if (response.length>0) {
+          const validator = bcrypt.compareSync(input.password,response[0].password)
+          if (validator) {
+            jwt.sign({id:input.patientid},"patient-app",{expiresIn:"1d"},
+                (error,token)=>{
+                    if (error) {
+                        res.json({"status":"Something went wrong"})
+                    } else {
+                        res.json({"status":"success","token":token}) 
+                    }
+                }
+            )
+          } else {
+            res.json({"status":"Invalid password"})
+          }  
+        } else {
+            res.json({"status":"Invalid patient-Id"})
+        }
+       } 
+    ).catch()
+})
+
 app.listen(8080,()=>{
     console.log("server started")
 })
