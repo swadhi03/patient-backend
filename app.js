@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken")
 const bcrypt= require("bcrypt")
 const LoginModel = require("./models/Admin")
 const DoctorModel = require("./models/Doctor")
+const PatientModel = require("./models/Patient")
 
 mongoose.connect("mongodb+srv://swathi:swathi2609@cluster0.em0miqo.mongodb.net/patientappdb?retryWrites=true&w=majority&appName=Cluster0")
 
@@ -67,6 +68,26 @@ app.post("/addDoctor",(req,res)=>{
     )
 })
 
+app.post("/addpatient",(req,res)=>{
+    let input=req.body
+    let hashedPassword = bcrypt.hashSync(input.password,10)
+    input.password = hashedPassword
+    const DateObject = new Date()
+    const currentYear = DateObject.getFullYear()
+    //console.log(currentYear.toString())
+    const currentMonth = DateObject.getMonth()+1
+    //console.log(currentMonth.toString())
+    const randomNumber = Math.floor(Math.random()*9999)+1000
+    //console.log(randomNumber.toString())
+    const patientid = "XYZ"+currentYear.toString()+currentMonth.toString()+randomNumber.toString()
+    console.log(patientid)
+    input.patientid = patientid
+    console.log(patientid)
+    console.log(input)
+    const patient = new PatientModel(input)
+    patient.save()
+    res.json({"status":"success"})
+})
 
 app.listen(8080,()=>{
     console.log("server started")
